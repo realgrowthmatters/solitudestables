@@ -222,7 +222,7 @@
     showStep(0);
   }
 
-  /* ---------- Booking / contact form ---------- */
+  /* ---------- Booking / contact form (posts to form backend) ---------- */
   var form = document.querySelector("form[data-booking]");
   if (form) {
     form.addEventListener("submit", function (e) {
@@ -245,34 +245,17 @@
         if (firstBad) firstBad.focus();
         return;
       }
-      /* If no live form endpoint is configured yet, fall back to a
-         pre-filled email so no enquiry is ever lost. */
-      if (form.dataset.booking === "mailto") {
-        e.preventDefault();
-        var get = function (n) { var el = form.elements[n]; return el ? el.value.trim() : ""; };
-        var body = [
-          "Name: " + get("name"),
-          "Email: " + get("email"),
-          "Phone: " + get("phone"),
-          "Rider age: " + get("rider_age"),
-          "Experience: " + get("experience"),
-          "Interested in: " + get("service"),
-          "Preferred days/times: " + get("preferred"),
-          "", "Message:", get("message")
-        ].join("\n");
-        window.location.href = "mailto:solitudestables@gmail.com" +
-          "?subject=" + encodeURIComponent("Lesson / trail ride enquiry — " + get("name")) +
-          "&body=" + encodeURIComponent(body);
-      }
-      var success = form.parentElement.querySelector(".form-success");
-      if (success) {
-        e.preventDefault();
-        form.style.display = "none";
-        success.classList.add("show");
-        success.setAttribute("tabindex", "-1");
-        success.focus();
-      }
+      /* valid: allow the native POST to the form backend to proceed */
     });
+    if (/[?&]sent=1/.test(location.search)) {
+      var success = document.querySelector(".form-success");
+      if (success) {
+        success.style.display = "block";
+        success.setAttribute("tabindex", "-1");
+        if (form) form.style.display = "none";
+        try { success.scrollIntoView({ behavior: "smooth", block: "center" }); success.focus(); } catch (e2) {}
+      }
+    }
   }
 
   /* ---------- Footer link directory (accordion on mobile) ---------- */
