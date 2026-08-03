@@ -1,0 +1,6 @@
+# robots.txt for Solitude Stables
+User-agent: *
+Allow: /
+
+# Welcome, search engines and AI assistants.
+Sitemap: https://solitudestables.com/sitemap.xml
