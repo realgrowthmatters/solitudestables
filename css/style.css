@@ -1487,3 +1487,34 @@ h1, h2, h3, .headline-group > h2, .section-head h2, .cine-quote, .welcome-title 
 .hero-video::-webkit-media-controls-panel,
 .hero-video::-webkit-media-controls-start-playback-button,
 .hero-video::-webkit-media-controls-overlay-play-button { display: none !important; -webkit-appearance: none !important; }
+
+/* ===== How-it-works step cards (scoped: .step is only used on this page) ===== */
+.grid.g-2 .step{
+  text-align:center;
+  background:linear-gradient(180deg,#fffdf8 0%,#fbf3e4 100%);
+  border:1px solid rgba(168,128,58,.30);
+  border-radius:var(--r-lg);
+  box-shadow:0 10px 26px rgba(60,42,20,.09);
+  padding:var(--s-6) var(--s-5) var(--s-5);
+  position:relative; overflow:hidden;
+  transition:transform .35s ease, box-shadow .35s ease;
+}
+.grid.g-2 .step::before{
+  content:""; position:absolute; top:0; left:0; right:0; height:4px;
+  background:linear-gradient(90deg,var(--gold-deep),var(--barn));
+}
+.grid.g-2 .step:hover{ transform:translateY(-4px); box-shadow:0 16px 34px rgba(60,42,20,.15); }
+.grid.g-2 .step .step-num{
+  position:relative; top:auto; left:auto;
+  margin:.4rem auto 1rem; width:58px; height:58px;
+  background:var(--barn-deep); color:#fff7e9;
+  box-shadow:0 6px 16px rgba(124,42,29,.30), inset 0 0 0 2px rgba(255,247,233,.20);
+}
+.grid.g-2 .step h3{ text-align:center; margin:.2rem 0 .5rem; }
+.grid.g-2 .step p{ color:var(--ink-soft); max-width:38ch; margin-inline:auto; }
+/* balance the orphaned final step (5 of 5) by centering it across both columns */
+@media (min-width:620px){
+  .grid.g-2 .step:last-child:nth-child(odd){
+    grid-column:1 / -1; max-width:calc(50% - 14px); margin-inline:auto;
+  }
+}
