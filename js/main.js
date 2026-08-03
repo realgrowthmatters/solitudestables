@@ -226,6 +226,10 @@
   var form = document.querySelector("form[data-booking]");
   if (form) {
     form.addEventListener("submit", function (e) {
+      /* anti-spam: honeypot + time-trap */
+      var hp = form.elements["_honey"];
+      if (hp && hp.value) { e.preventDefault(); return; }
+      if (window.__ssFormLoad && (Date.now() - window.__ssFormLoad) < 3000) { e.preventDefault(); return; }
       var ok = true;
       form.querySelectorAll("[required]").forEach(function (field) {
         var err = field.parentElement.querySelector(".form-error");
@@ -413,4 +417,43 @@
   });
   menu.querySelectorAll('.submenu a').forEach(function(a){ a.addEventListener('click', closeNav); });
   document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && menu.classList.contains('open')) closeNav(); });
+})();
+
+/* ---------- Marketing attribution capture (for form submissions) ---------- */
+(function () {
+  try {
+    window.__ssFormLoad = Date.now();
+    var q = new URLSearchParams(location.search);
+    var keys = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "gclid"];
+    var cur = {};
+    keys.forEach(function (k) { var v = q.get(k); if (v) cur[k] = v; });
+    if (!sessionStorage.getItem("ss_first")) {
+      sessionStorage.setItem("ss_first", "1");
+      sessionStorage.setItem("ss_landing", location.pathname + location.search);
+      sessionStorage.setItem("ss_ref", document.referrer || "");
+    }
+    if (Object.keys(cur).length) sessionStorage.setItem("ss_utm", JSON.stringify(cur));
+    function channelOf(utm, ref) {
+      var m = (utm.utm_medium || "").toLowerCase();
+      if (utm.gclid || m.indexOf("cpc") > -1 || m.indexOf("paid") > -1 || m === "ppc") return "Paid";
+      if (m) return utm.utm_medium;
+      if (!ref) return "Direct";
+      if (/google|bing|yahoo|duckduckgo|ecosia/i.test(ref)) return "Organic search";
+      if (/facebook|instagram|t\.co|twitter|x\.com|linkedin|pinterest|tiktok|youtube/i.test(ref)) return "Social";
+      if (ref.indexOf(location.hostname) > -1) return "Direct";
+      return "Referral";
+    }
+    var form = document.querySelector("form[data-booking]");
+    if (form) {
+      var utm = {};
+      try { utm = JSON.parse(sessionStorage.getItem("ss_utm") || "{}"); } catch (e) {}
+      var ref = sessionStorage.getItem("ss_ref") || document.referrer || "";
+      var set = function (n, v) { var el = form.elements[n]; if (el) el.value = v || ""; };
+      set("utm_source", utm.utm_source); set("utm_medium", utm.utm_medium); set("utm_campaign", utm.utm_campaign);
+      set("utm_content", utm.utm_content); set("utm_term", utm.utm_term); set("gclid", utm.gclid);
+      set("referrer", ref); set("landing_page", sessionStorage.getItem("ss_landing") || location.pathname);
+      set("page_url", location.href); set("user_agent", navigator.userAgent);
+      set("channel", channelOf(utm, ref));
+    }
+  } catch (e) {}
 })();
