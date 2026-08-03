@@ -410,3 +410,24 @@
   var hv = document.querySelector(".hero-video");
   if (hv) hv.addEventListener("playing", function () { push({ event: "hero_video_play" }); }, { once: true });
 })();
+
+/* ---------- Mobile nav: robust close (backdrop, close button, link-close, Esc) ---------- */
+(function(){
+  var menu = document.querySelector('.nav-menu');
+  var toggle = document.querySelector('.nav-toggle');
+  if(!menu || !toggle) return;
+  var backdrop = document.querySelector('.nav-backdrop');
+  if(!backdrop){ backdrop = document.createElement('div'); backdrop.className = 'nav-backdrop'; document.body.appendChild(backdrop); }
+  function closeNav(){ menu.classList.remove('open'); backdrop.classList.remove('show'); document.body.classList.remove('nav-open'); toggle.setAttribute('aria-expanded','false'); }
+  toggle.addEventListener('click', function(){ setTimeout(function(){ var o = menu.classList.contains('open'); backdrop.classList.toggle('show', o); document.body.classList.toggle('nav-open', o); }, 0); });
+  backdrop.addEventListener('click', closeNav);
+  if(!menu.querySelector('.nav-close')){
+    var x = document.createElement('button'); x.type='button'; x.className='nav-close'; x.setAttribute('aria-label','Close menu'); x.innerHTML='&times;';
+    x.addEventListener('click', closeNav); menu.insertBefore(x, menu.firstChild);
+  }
+  menu.querySelectorAll('a.nav-link').forEach(function(a){
+    a.addEventListener('click', function(){ if(!a.parentElement.classList.contains('has-submenu')) closeNav(); });
+  });
+  menu.querySelectorAll('.submenu a').forEach(function(a){ a.addEventListener('click', closeNav); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && menu.classList.contains('open')) closeNav(); });
+})();

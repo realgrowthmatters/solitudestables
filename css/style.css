@@ -613,11 +613,7 @@ table.data tbody tr:hover { background: var(--cream-2); }
 .quiz .card p, .quiz .card { color: var(--ink); }
 
 /* ---------- 28. Forms ---------- */
-.form-card {
-  background: var(--paper); border: 1px solid var(--line);
-  border-radius: var(--r-lg); padding: clamp(1.5rem,1.2rem+1.5vw,2.5rem);
-  box-shadow: var(--shadow-sm);
-}
+.form-card { background: transparent; border: 0; border-radius: 0; padding: 0; box-shadow: none; }
 .form-grid { display: grid; gap: var(--s-4); }
 @media (min-width: 620px) { .form-grid .span-2 { grid-column: 1 / -1; } .form-grid.two { grid-template-columns: 1fr 1fr; } }
 .field label { display: block; font-weight: 800; margin-bottom: .35rem; }
@@ -760,11 +756,14 @@ fieldset legend { font-weight: 800; margin-bottom: var(--s-2); }
 @media (max-width: 979px) {
   .nav-toggle { display: inline-flex; }
   .nav-menu {
-    position: fixed; inset: 0 0 0 auto; width: min(360px, 88vw);
-    background: var(--cream); border-left: 1px solid var(--line);
+    position: fixed; inset: 0 0 auto auto; top: 0; right: 0;
+    width: min(360px, 88vw); height: 100vh; height: 100dvh; max-height: 100dvh;
+    background: linear-gradient(180deg,#fbf5e6 0%,#f2e8d1 100%);
+    border-left: 1px solid var(--line);
     flex-direction: column; align-items: stretch; gap: 0;
-    padding: calc(var(--header-h) + 1rem) var(--s-5) var(--s-6);
-    overflow-y: auto; box-shadow: var(--shadow-lg);
+    padding: calc(var(--header-h) + 1rem) var(--s-5) calc(var(--s-6) + env(safe-area-inset-bottom, 0px) + 1.5rem);
+    overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+    box-shadow: var(--shadow-lg); z-index: 1001;
     transform: translateX(102%); transition: transform .28s ease;
   }
   .nav-menu.open { transform: translateX(0); }
@@ -1518,3 +1517,13 @@ h1, h2, h3, .headline-group > h2, .section-head h2, .cine-quote, .welcome-title 
     grid-column:1 / -1; max-width:calc(50% - 14px); margin-inline:auto;
   }
 }
+
+
+/* Mobile nav: close button + polish (button injected by JS) */
+.nav-close{ position:absolute; top:.7rem; right:.75rem; width:42px; height:42px;
+  border:0; border-radius:50%; background:var(--forest-deep); color:#fff7e9;
+  font-size:1.6rem; line-height:1; cursor:pointer; display:none; z-index:3;
+  align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(31,51,36,.28);
+  transition:background .18s ease, transform .18s ease; }
+.nav-close:hover{ background:var(--barn-deep); transform:rotate(90deg); }
+@media (max-width:979px){ .nav-close{ display:inline-flex; } }
