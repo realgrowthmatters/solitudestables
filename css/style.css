@@ -1527,3 +1527,6 @@ h1, h2, h3, .headline-group > h2, .section-head h2, .cine-quote, .welcome-title 
   transition:background .18s ease, transform .18s ease; }
 .nav-close:hover{ background:var(--barn-deep); transform:rotate(90deg); }
 @media (max-width:979px){ .nav-close{ display:inline-flex; } }
+
+/* eyebrow span spacing */
+.eyebrow{ margin-top:.2rem; }
