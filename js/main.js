@@ -227,7 +227,7 @@
   if (form) {
     form.addEventListener("submit", function (e) {
       /* anti-spam: honeypot + time-trap */
-      var hp = form.elements["_honey"];
+      var hp = form.elements["website"];
       if (hp && hp.value) { e.preventDefault(); return; }
       if (window.__ssFormLoad && (Date.now() - window.__ssFormLoad) < 3000) { e.preventDefault(); return; }
       var ok = true;
@@ -454,6 +454,43 @@
       set("referrer", ref); set("landing_page", sessionStorage.getItem("ss_landing") || location.pathname);
       set("page_url", location.href); set("user_agent", navigator.userAgent);
       set("channel", channelOf(utm, ref));
+      try {
+        var qa = JSON.parse(sessionStorage.getItem("ss_quiz_answers") || "[]");
+        var qr = sessionStorage.getItem("ss_quiz_result") || "";
+        var qs = qa.map(function (x, i) { return "Q" + (i + 1) + " " + x.q + " -> " + x.a; }).join(" | ");
+        if (qr) qs += (qs ? " | " : "") + "Result: " + qr;
+        set("quiz", qs);
+      } catch (e3) {}
     }
   } catch (e) {}
+})();
+
+
+/* ---------- Capture quiz answers/result for the form submission ---------- */
+(function () {
+  var quiz = document.querySelector(".quiz[data-quiz]");
+  if (!quiz) return;
+  var stepEls = [].slice.call(quiz.querySelectorAll(".quiz-step"));
+  var answers = [];
+  quiz.querySelectorAll(".quiz-option").forEach(function (opt) {
+    opt.addEventListener("click", function () {
+      var stepEl = opt.closest(".quiz-step");
+      if (stepEls.indexOf(stepEl) === 0) answers = [];
+      var qh = stepEl && stepEl.querySelector("h3");
+      answers.push({ q: qh ? qh.textContent.replace(/\s+/g, " ").trim() : "", a: (opt.textContent || "").replace(/\s+/g, " ").trim() });
+      try { sessionStorage.setItem("ss_quiz_answers", JSON.stringify(answers)); } catch (e) {}
+    });
+  });
+  var results = [].slice.call(quiz.querySelectorAll(".quiz-result"));
+  if (results.length && window.MutationObserver) {
+    var mo = new MutationObserver(function () {
+      results.forEach(function (r) {
+        if (r.classList.contains("active")) {
+          var h = r.querySelector("h3");
+          try { sessionStorage.setItem("ss_quiz_result", h ? h.textContent.replace(/\s+/g, " ").trim() : (r.dataset.result || "")); } catch (e) {}
+        }
+      });
+    });
+    results.forEach(function (r) { mo.observe(r, { attributes: true, attributeFilter: ["class"] }); });
+  }
 })();
