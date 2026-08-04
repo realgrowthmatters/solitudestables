@@ -249,21 +249,14 @@
         if (firstBad) firstBad.focus();
         return;
       }
-      /* valid: post in the background, keep the visitor on the page, show thank-you */
+      /* valid: send the submission (keepalive lets the POST finish during navigation), then go to the thank-you page */
       e.preventDefault();
       var submitBtn = form.querySelector('[type="submit"]');
-      if (submitBtn) { submitBtn.disabled = true; submitBtn.setAttribute("aria-busy", "true"); }
-      var showThanks = function () {
-        var okMsg = document.querySelector(".form-success");
-        if (okMsg) {
-          okMsg.style.display = "block";
-          okMsg.setAttribute("tabindex", "-1");
-          form.style.display = "none";
-          try { okMsg.scrollIntoView({ behavior: "smooth", block: "center" }); okMsg.focus(); } catch (e3) {}
-        }
-      };
-      fetch(form.action, { method: "POST", mode: "no-cors", body: new URLSearchParams(new FormData(form)) })
-        .then(showThanks).catch(showThanks);
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.setAttribute("aria-busy", "true"); submitBtn.textContent = "Sending\u2026"; }
+      try {
+        fetch(form.action, { method: "POST", mode: "no-cors", keepalive: true, body: new URLSearchParams(new FormData(form)) });
+      } catch (e3) {}
+      window.location.assign("/thank-you/");
     });
     if (/[?&]sent=1/.test(location.search)) {
       var success = document.querySelector(".form-success");
@@ -394,7 +387,7 @@
   if (form) {
     var fs = false;
     form.addEventListener("focusin", function () { if (!fs) { fs = true; push({ event: "form_start", form_name: "booking" }); } });
-    form.addEventListener("submit", function () { push({ event: "generate_lead", form_name: "booking" }); });
+    /* generate_lead now fires on /thank-you/ (reliable, single conversion) */
   }
 
   document.querySelectorAll(".tf-chip, .trailfinder [data-filter], .tf-controls input, .tf-controls select").forEach(function (el) {
