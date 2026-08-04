@@ -249,7 +249,21 @@
         if (firstBad) firstBad.focus();
         return;
       }
-      /* valid: allow the native POST to the form backend to proceed */
+      /* valid: post in the background, keep the visitor on the page, show thank-you */
+      e.preventDefault();
+      var submitBtn = form.querySelector('[type="submit"]');
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.setAttribute("aria-busy", "true"); }
+      var showThanks = function () {
+        var okMsg = document.querySelector(".form-success");
+        if (okMsg) {
+          okMsg.style.display = "block";
+          okMsg.setAttribute("tabindex", "-1");
+          form.style.display = "none";
+          try { okMsg.scrollIntoView({ behavior: "smooth", block: "center" }); okMsg.focus(); } catch (e3) {}
+        }
+      };
+      fetch(form.action, { method: "POST", mode: "no-cors", body: new URLSearchParams(new FormData(form)) })
+        .then(showThanks).catch(showThanks);
     });
     if (/[?&]sent=1/.test(location.search)) {
       var success = document.querySelector(".form-success");
